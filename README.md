@@ -8,32 +8,13 @@ Undercover App Cloner creates locally signed Android app copies with separate pa
 
 Developed by **Sharodshahi Al-Amin**, owner of **Undercover IT Firm**.
 
-This repository distributes the Android APK, release documentation and branding assets. Application source code, keystores, signing passwords and private keys are not published here.
+ChatGPT Pages provides the Android APK and source ZIP, with release documentation and branding in this repository. Signing keystores, signing passwords and private keys are excluded from the downloads.
 
 ## Download and install
 
-[Download Undercover App Cloner v0.6.0](https://github.com/savaskarofficial/Undercover-App-Cloner/releases/download/v0.6.0/Undercover-App-Cloner-v0.6.0.apk)
+[APK and source downloads in ChatGPT Pages](https://chatgpt.com/space/page_948b6a28bf40819189f014820c8778a1) · [Release archive](https://github.com/savaskarofficial/Undercover-App-Cloner/releases)
 
-| Release | Details |
-| --- | --- |
-| Version | 0.6.0, version code 6 |
-| Release status | Release |
-| APK | `Undercover-App-Cloner-v0.6.0.apk` |
-| Size | 5,533,426 bytes (5.28 MiB) |
-| Minimum Android | Android 8.0, API 26 |
-| Manager signing identity | UITF |
-
-**APK SHA-256**
-
-```text
-5a412feca8f71ba02f184667632581d2056d4838524a3577578da9ebdeb4cad5
-```
-
-**UITF certificate SHA-256**
-
-```text
-bca52ad2acd8031cdd0279c21a609e91d718eb8a88a6de59018b0f31484999e9
-```
+The source ZIP includes `BUILDING.md` with build instructions. Check the download's release notes for its APK checksum, signing-certificate fingerprint and validation details.
 
 1. Open the APK on an Android device running Android 8.0 or newer.
 2. If Android asks, allow installation from the app that opened the file, then confirm installation.
@@ -44,15 +25,15 @@ bca52ad2acd8031cdd0279c21a609e91d718eb8a88a6de59018b0f31484999e9
 
 Android controls the installer, unknown-source permission and the final installation decision. Device policy, package conflicts, signatures and unsupported APKs can prevent installation. The manager reports unavailable settings or permission-service failures instead of leaving a pending installation request.
 
-### Updating the UITF-signed 0.5.0 release
+### Installation identity and updates
 
-Version 0.6.0 uses the same UITF signing certificate and package as the published 0.5.0 APK. Install it over that version to keep the manager's saved data and local clone-signing key. Uninstalling 0.5.0 is not required for this update.
+The manager package is **`com.undercoveritfirm.appcloner`**. It installs separately from the older **`com.clonerprofessional.app`** manager. Both can remain installed, with separate manager data and separate phone-local clone-signing identities.
 
-### Moving from a development-signed manager
+Keep the old manager installed if you need it to update clones signed by its local key. Signing the new manager APK with the same UITF certificate does not transfer that AndroidKeyStore clone-signing key to a different package. APK exports, profiles and app-data backups do not contain that private key. The new manager cannot update clones signed by the old manager's phone-local key without the same signing identity.
 
-Version 0.6.0 is signed strictly with the UITF certificate. It cannot update an older development-signed manager in place. Android requires the old manager to be uninstalled before this differently signed APK can be installed.
+Future manager updates using **`com.undercoveritfirm.appcloner`** and the compatible UITF signing identity can install in place, keeping that manager's saved data and clone-signing key.
 
-**Uninstalling the old manager or clearing its storage removes its local AndroidKeyStore clone-signing key.** APK exports, profiles and app-data backups do not preserve that private key. Without it, the new manager cannot update existing clones signed by the old key. Export anything you need before changing installations; a fresh clone/package may be required, and account or database migration is not guaranteed.
+**Uninstalling either manager or clearing its storage removes that manager's local AndroidKeyStore clone-signing key.** Export anything you need before removing an installation. APK and profile exports do not preserve the key; a fresh clone/package may be required, and account or database migration is not guaranteed. Installing the new manager beside the old one does not require uninstalling the old manager.
 
 ## Interface and workflow
 
@@ -62,7 +43,7 @@ Use a different suffix for a separate clone. Reusing an existing clone package w
 
 Profiles save settings, not live app sessions. Known fields are type checked; malformed values, fractional integers, overflow and non-finite coordinates are rejected. Unknown fields are ignored for compatibility.
 
-## Finding the new controls
+## Finding the controls
 
 | Control | Location | How to use it |
 | --- | --- | --- |
@@ -110,12 +91,12 @@ Runtime data transfers and document readers use cross-process leases. Conflictin
 
 ## Feature coverage
 
-The table below covers all **86 reference items** across 15 groups. The settings model contains **94 advanced fields and 72 legacy fields**. Configuration count and instruction-match count describe available controls and matched code locations; neither number establishes complete app coverage.
+The table below covers all **86 reference items** across 15 groups. Each row describes the supported behavior and its limits; available settings do not establish complete coverage of every app or API.
 
 - **Available:** the described operation is implemented within its stated limits.
 - **Scoped:** part of the request or selected APIs/views are supported.
 - **Android controlled:** the result also depends on platform permissions, policy or device support.
-- **Unavailable:** that function is not implemented in this release.
+- **Unavailable:** that function is not implemented.
 
 ### 1. Identity and tracking
 
@@ -302,25 +283,19 @@ The manager has no Internet permission and sends no analytics. APKs, sources, ic
 
 The APK that installs Undercover App Cloner and the APKs it generates have separate signing roles. This distribution uses the owner's **UITF** signing identity for the manager. The manager creates its clone-signing key in AndroidKeyStore on the device. Neither that private key nor the UITF keystore/password is distributed in this repository.
 
-Android requires the same compatible signing identity for manager updates. This UITF release does not use a rotation lineage from the previous development certificate. The migration note above applies to those older manager installations. Clone data restore can preserve existing excluded local key files, but it cannot export or recover the manager's AndroidKeyStore signing key or restore hardware-backed clone keys.
+Android requires the same package and a compatible signing identity for an in-place manager update. A different manager package does not inherit another package's AndroidKeyStore keys. Clone data restore can preserve existing excluded local key files, but it cannot export or recover the manager's AndroidKeyStore signing key or restore hardware-backed clone keys.
 
 A clone password protects app entry. It does not encrypt the clone's files or APK configuration. Exported profiles and generated APK settings can contain configured proxy credentials, so handle those files as private configuration.
 
 ## Verification and compatibility
 
-The v0.6.0 release assembly succeeded. Its fresh release-variant host test run passed **248 tests**: 102 manager tests and 146 runtime tests, with zero failures, errors or skipped tests. Full lint completed with **zero errors**, 19 manager warnings and 62 runtime warnings.
+See the [release notes](https://github.com/savaskarofficial/Undercover-App-Cloner/releases) for build results, test totals, artifact checks and device observations. The [changelog](CHANGELOG.md) lists feature changes. Building instructions are included in the source ZIP.
 
-The host tests cover compiled fixture APK transformations, manifest/resource edits, settings validation, selected DEX calls and fields, runtime contracts, identity persistence, notification rules, clocks, file containment, archive encryption, restore recovery and data-operation coordination. Tests also cover literal text replacement, ad/tracker host rules, preservation of excluded local key files and rejection of archive key injection. Host tests do not execute every Android UI or hardware path.
+Host checks cover compiled fixture APK transformations, manifest/resource edits, settings validation, selected DEX calls and fields, runtime contracts, identity persistence, notification rules, clocks, text replacement, ad/tracker host rules, file containment, archive encryption, restore recovery and data-operation coordination. Host tests do not execute every Android UI or hardware path.
 
-Native Android 9 verification on the 0.6.0 debug build passed **13 icon checks** using Android Bitmap and Canvas. These included full-pixel preview/export equality, hue-zero identity, inversion, alpha, both flips, batch suffixes, number badges and source-image preservation. Actual manager screens also confirmed Light and Dark selection, Dark persistence after restart, and visibility of the System choice. Following device night-mode changes was not completed. These checks cover the named paths only.
+**Android 16 and 17 end-to-end compatibility is unverified.** Phone-specific Install crashes require matching device checks. OEM installer policy, biometrics, persistent document grants, keyboard viewports and source-app/API combinations can produce different results.
 
-The final signed-APK update test was blocked when the Android 9 emulator lost its activity and package services. It did not confirm a 0.5.0-to-0.6.0 update or a launch of the delivered release APK. Interactive checks of the text, color and ad controls on that APK remain outstanding. This system failure was not a reproduced manager crash.
-
-Historical Android 15 checks on earlier 0.4.0 verification builds covered local AndroidKeyStore cloning/signing, selected identifier/location/time-zone paths, encrypted backup/restore, file push/export, cache clearing, temporary-URI revocation, protected data access, notification filtering, identity rotation and own-data deletion. An earlier real Library Install update reached Android's **App installed** result and returned to Library with the same manager process. These observations belong to those earlier builds, not to this newly branded UITF-signed APK.
-
-**Android 16 and 17 end-to-end compatibility is unverified.** The earlier emulator checks were blocked by operating-system service failures before the manager UI could be tested, and the reported phone-side Install crash was not reproduced. The Android 9 checks above do not establish compatibility on newer phones. Biometric, persistent document-grant and keyboard-viewport paths still require matching device checks. Physical phones, OEM installer policy, persistent document grants and source-app/API combinations need matching device checks.
-
-Use the exact APK version and SHA-256 above when reporting a problem. Include the Android version, source app/package, selected settings, action taken and the error or crash log where available. A successful build or signature check does not establish that every source app or option combination will work.
+When reporting a problem, include the APK identifier and checksum from its release notes, Android version, source app/package, selected settings, action taken and the error or crash log where available. A successful build or signature check does not establish that every source app or option combination will work.
 
 ## Credits
 
