@@ -12,21 +12,21 @@ This repository distributes the Android APK, release documentation and branding 
 
 ## Download and install
 
-[Download Undercover App Cloner v0.5.0](https://github.com/savaskarofficial/Undercover-App-Cloner/releases/download/v0.5.0/Undercover-App-Cloner-v0.5.0.apk)
+[Download Undercover App Cloner v0.6.0](https://github.com/savaskarofficial/Undercover-App-Cloner/releases/download/v0.6.0/Undercover-App-Cloner-v0.6.0.apk)
 
 | Release | Details |
 | --- | --- |
-| Version | 0.5.0, version code 5 |
-| Release status | Preview / prerelease |
-| APK | `Undercover-App-Cloner-v0.5.0.apk` |
-| Size | 5,517,042 bytes, approximately 5.26 MiB |
+| Version | 0.6.0, version code 6 |
+| Release status | Release |
+| APK | `Undercover-App-Cloner-v0.6.0.apk` |
+| Size | 5,533,426 bytes (5.28 MiB) |
 | Minimum Android | Android 8.0, API 26 |
 | Manager signing identity | UITF |
 
 **APK SHA-256**
 
 ```text
-e5cf8aca6b3bf316fbf6b2b56f43a5e896514e9145c809f12fc1eac1a8c1d056
+5a412feca8f71ba02f184667632581d2056d4838524a3577578da9ebdeb4cad5
 ```
 
 **UITF certificate SHA-256**
@@ -44,9 +44,13 @@ bca52ad2acd8031cdd0279c21a609e91d718eb8a88a6de59018b0f31484999e9
 
 Android controls the installer, unknown-source permission and the final installation decision. Device policy, package conflicts, signatures and unsupported APKs can prevent installation. The manager reports unavailable settings or permission-service failures instead of leaving a pending installation request.
 
+### Updating the UITF-signed 0.5.0 release
+
+Version 0.6.0 uses the same UITF signing certificate and package as the published 0.5.0 APK. Install it over that version to keep the manager's saved data and local clone-signing key. Uninstalling 0.5.0 is not required for this update.
+
 ### Moving from a development-signed manager
 
-Version 0.5.0 is signed strictly with the UITF certificate. It cannot update an older development-signed manager in place. Android requires the old manager to be uninstalled before this differently signed APK can be installed.
+Version 0.6.0 is signed strictly with the UITF certificate. It cannot update an older development-signed manager in place. Android requires the old manager to be uninstalled before this differently signed APK can be installed.
 
 **Uninstalling the old manager or clearing its storage removes its local AndroidKeyStore clone-signing key.** APK exports, profiles and app-data backups do not preserve that private key. Without it, the new manager cannot update existing clones signed by the old key. Export anything you need before changing installations; a fresh clone/package may be required, and account or database migration is not guaranteed.
 
@@ -57,6 +61,28 @@ The manager uses four setup steps: **App**, **Identity**, **Options** and **Revi
 Use a different suffix for a separate clone. Reusing an existing clone package with the same signing identity permits an Android update that retains that clone's data. Batch names can contain `{n}`; up to 20 copies are validated before sequential processing begins. Completed builds remain available if a later batch is cancelled.
 
 Profiles save settings, not live app sessions. Known fields are type checked; malformed values, fractional integers, overflow and non-finite coordinates are rejected. Unknown fields are ignored for compatibility.
+
+## Finding the new controls
+
+| Control | Location | How to use it |
+| --- | --- | --- |
+| Live icon preview | **Identity > Icon adjustments** | Compare **Original** and **Clone** while changing hue, inversion, flips and number badging. Preview and exported icon use the same renderer. Launcher masking can change the installed appearance. |
+| Text replacement | **Options > Display** | Set **Find text** to `Test` and **Replace with** to `Testuuu`. Both fields stay visible, with a live example underneath. Matching is literal and case sensitive. A blank replacement removes matching text. |
+| Color selection | **Options > Display** and **Notifications** | Open the status bar, navigation bar, toolbar or notification accent color control. Choose a preset, use RGB and opacity sliders or enter `#RRGGBB` / `#AARRGGBB`. **Apply** saves the selection, **Cancel** discards the draft and **Original** restores the source color. |
+| Manager light or dark mode | **Help > App appearance** | Choose **System**, **Light** or **Dark**. This preference is saved for Undercover App Cloner and is separate from a clone's **Force dark mode** option. |
+| Ads and trackers | **Options > Ads and tracking** | Enable the known ad-host and tracker lists, or enter custom domains before building. See the scope below. |
+
+Text replacement applies to supported standard Android text views. Editable text, password fields, Compose text, custom canvases and other rendering systems are outside this control. The example shows how the two strings relate; it is not a live inspector of the source app's screen.
+
+Changes to clone options take effect in newly built APKs. Rebuild and install the clone to apply them to a previously generated copy. Updating the manager alone does not rewrite an installed clone.
+
+## Ads and tracking
+
+**Options > Ads and tracking** provides separate controls for known ad hosts, known tracker hosts and a custom domain list. The built-in lists are included offline and contain **14 ad domains** and **11 tracker domains**. A custom list accepts up to **256 domains**, one per line.
+
+Filtering applies to selected Java URL/connection and socket paths and supported top-level WebView loads inside the modified app. A matching request is blocked rather than routed through a hosted service. This feature does not create a device-wide VPN or install a system-wide DNS filter.
+
+Native networking, automatic redirects, WebView subresources and unsupported clients can use other paths. Cached ads and ads served from an app's own content domains may still appear. Blocking a shared domain can also stop sign-in, images or other app content. These controls reduce matching traffic within the supported paths; they do not guarantee an ad-free app.
 
 ## Notification controls
 
@@ -84,7 +110,7 @@ Runtime data transfers and document readers use cross-process leases. Conflictin
 
 ## Feature coverage
 
-The table below covers all **86 reference items** across 15 groups. The settings model contains **91 advanced fields and 72 legacy fields**. Configuration count and instruction-match count describe available controls and matched code locations; neither number establishes complete app coverage.
+The table below covers all **86 reference items** across 15 groups. The settings model contains **94 advanced fields and 72 legacy fields**. Configuration count and instruction-match count describe available controls and matched code locations; neither number establishes complete app coverage.
 
 - **Available:** the described operation is implemented within its stated limits.
 - **Scoped:** part of the request or selected APIs/views are supported.
@@ -129,9 +155,9 @@ The table below covers all **86 reference items** across 15 groups. The settings
 
 | Feature | Coverage | Behavior and limits |
 | --- | --- | --- |
-| Color Customization | Scoped | Adjust status/navigation colors, platform ActionBars and discovered Toolbars. Source themes, edge-to-edge rules and custom drawing can override the requested styling. |
-| Dark Mode & Invert Colors | Scoped | Request app-scoped night mode or an inverted content layer. This does not change the phone's theme or guarantee recoloring of custom surfaces. |
-| Modify Views | Scoped | Replace substrings, hide exact matching text, resize standard text or apply opacity. An arbitrary view inspector and universal Compose/game editing are not included. |
+| Color Customization | Scoped | Choose status/navigation, toolbar and notification colors with presets, RGB/opacity controls or hex entry. Apply styling to supported system bars, platform ActionBars and discovered Toolbars. Source themes, edge-to-edge rules and custom drawing can override the requested styling. |
+| Dark Mode & Invert Colors | Scoped | Request clone-scoped night mode or an inverted content layer. The manager has a separate saved System/Light/Dark preference in Help. These controls do not change the phone's theme or guarantee recoloring of custom surfaces. |
+| Modify Views | Scoped | Use the visible Find text and Replace with fields for literal, case-sensitive replacement in supported standard text views; editable and password fields are excluded. Hide exact matching text, resize standard text or apply opacity. An arbitrary view inspector and universal Compose/game editing are not included. |
 | Window Sizing & Scaling | Scoped | Adjust supported density, language, font scale, text size and padding. Existing custom surfaces may not follow configuration changes; arbitrary window resizing is unavailable. |
 | Multi-Window & Picture-in-Picture (PiP) | Scoped; Android controlled | Edit resizeable, PiP and task-reparenting declarations. Android and the source app must supply the actual window mode, transition behavior and device support. |
 | Rotation Lock | Available | Request system, portrait, landscape, reverse or full-sensor orientation. Source behavior and Android large-screen policies may override the request. |
@@ -248,7 +274,7 @@ The table below covers all **86 reference items** across 15 groups. The settings
 | --- | --- | --- |
 | Batch Cloning | Available | Validate and build up to 20 numbered clones sequentially. Cancel stops at a processing boundary and preserves already completed builds. |
 | Clone Number Badging | Available | Add a clone-number badge to the generated launcher icon. Final masking and adaptive-icon presentation depend on the launcher. |
-| Icon Modifier | Available | Choose a custom image, change hue, invert colors or flip the generated launcher icon. Source-driven dynamic icon changes and all launcher behaviors are not rewritten. |
+| Icon Modifier | Available | Choose a custom image, change hue, invert colors or flip the generated launcher icon, with Original/Clone live previews using the export renderer. Source-driven dynamic icon changes and all launcher behaviors are not rewritten. |
 | Google Maps Support Add-on | Scoped | Replace Maps key metadata with a key from a project you control. Its package/certificate restrictions must authorize the clone; automatic third-party key authorization is unavailable. |
 | Save / Export Clone APKs & Profiles | Available | Export/share signed APKs, library APK ZIPs and JSON profiles. Install uses a temporary APK read grant and Android confirmation. App-data backup is separate; private signing keys are not exported. |
 
@@ -282,13 +308,15 @@ A clone password protects app entry. It does not encrypt the clone's files or AP
 
 ## Verification and compatibility
 
-The v0.5.0 release assembly succeeded. Its fresh release-variant host test run passed **224 tests**: 98 manager tests and 126 runtime tests, with zero failures, errors or skipped tests. Full lint completed with **zero errors**, 16 manager warnings and 62 runtime warnings.
+The v0.6.0 release assembly succeeded. Its fresh release-variant host test run passed **248 tests**: 102 manager tests and 146 runtime tests, with zero failures, errors or skipped tests. Full lint completed with **zero errors**, 19 manager warnings and 62 runtime warnings.
 
-The host tests cover compiled fixture APK transformations, manifest/resource edits, settings validation, selected DEX calls and fields, runtime contracts, identity persistence, notification rules, clocks, file containment, archive encryption, restore recovery and data-operation coordination. The updated restore tests cover preservation of excluded local key files and rejection of archive key injection. Host tests do not execute every Android UI or hardware path.
+The host tests cover compiled fixture APK transformations, manifest/resource edits, settings validation, selected DEX calls and fields, runtime contracts, identity persistence, notification rules, clocks, file containment, archive encryption, restore recovery and data-operation coordination. Tests also cover literal text replacement, ad/tracker host rules, preservation of excluded local key files and rejection of archive key injection. Host tests do not execute every Android UI or hardware path.
+
+Native Android 9 verification on the 0.6.0 debug build passed **13 icon checks** using Android Bitmap and Canvas. These included full-pixel preview/export equality, hue-zero identity, inversion, alpha, both flips, batch suffixes, number badges and source-image preservation. Actual manager screens also confirmed Light and Dark selection, Dark persistence after restart, and System mode following the device setting. These checks cover the named paths only.
 
 Historical Android 15 checks on earlier 0.4.0 verification builds covered local AndroidKeyStore cloning/signing, selected identifier/location/time-zone paths, encrypted backup/restore, file push/export, cache clearing, temporary-URI revocation, protected data access, notification filtering, identity rotation and own-data deletion. An earlier real Library Install update reached Android's **App installed** result and returned to Library with the same manager process. These observations belong to those earlier builds, not to this newly branded UITF-signed APK.
 
-**Android 16 and 17 end-to-end compatibility is unverified.** The earlier emulator checks were blocked by operating-system service failures before the manager UI could be tested, and the reported phone-side Install crash was not reproduced. The v0.5.0 build has host verification only; it has not completed a fresh device-level Install, biometric or keyboard-viewport test. Physical phones, OEM installer policy, persistent document grants and source-app/API combinations need matching device checks.
+**Android 16 and 17 end-to-end compatibility is unverified.** The earlier emulator checks were blocked by operating-system service failures before the manager UI could be tested, and the reported phone-side Install crash was not reproduced. The Android 9 checks above do not establish compatibility on newer phones. Biometric, persistent document-grant and keyboard-viewport paths still require matching device checks. Physical phones, OEM installer policy, persistent document grants and source-app/API combinations need matching device checks.
 
 Use the exact APK version and SHA-256 above when reporting a problem. Include the Android version, source app/package, selected settings, action taken and the error or crash log where available. A successful build or signature check does not establish that every source app or option combination will work.
 
