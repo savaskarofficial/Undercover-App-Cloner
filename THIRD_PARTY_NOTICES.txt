@@ -1,4 +1,4 @@
-Third-party components used by Undercover App Cloner 0.6.0
+Third-party components used by Undercover App Cloner 1.6.0
 
 ARSCLib 1.4.0
 Copyright (C) 2022 github.com/REAndroid
