@@ -1,4 +1,4 @@
-Third-party components used by Undercover App Cloner 1.6.0
+Third-party components used by Undercover App Cloner 1.6.1
 
 ARSCLib 1.4.0
 Copyright (C) 2022 github.com/REAndroid
@@ -772,3 +772,24 @@ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
 THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+Device identity catalog source
+
+500 factual handset identities selected from Google's public Google Play
+supported devices list, downloaded 2026-11-03 UTC.
+Publisher: Google, Google Play
+https://storage.googleapis.com/play_public/supported_devices.csv
+Source SHA-256:
+b7cd97ba81a30beb0dda56620d306ede174b0b10dc2432774cd6968954962528
+Selected snapshot SHA-256:
+d1436ab02e3817caba089f5ab57132886e972cd0e52154a5160dc3e15caca5f3
+
+The public CSV provides no explicit open-data license notice. Attribution of
+these factual names and identifiers does not assert an open-source license for
+Google's collection. Manufacturer, brand and product names belong to their
+respective owners; listing them does not imply endorsement. Company labels are
+selection labels derived from retail branding, not verified firmware Build
+values. The source supplies no RAM, CPU, SoC or ABI specifications. Those
+catalog fields are left unknown; separate user settings are test overrides.
+The source archive includes deviceprofiles/SOURCE/NOTICE.md, the selected
+snapshot and its reproducible generator with full field and selection notes.
