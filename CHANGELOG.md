@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.6.2
+
+- Fixed conflicting device identities: the manager's old Pixel-only generator no longer pins Google properties and Mali GPU values over a selected company/model. Catalog identity settings now replace stale manual profile properties.
+- Added an explicit Randomize RAM and processor switch. New identity saves another independent hardware test configuration and restores it after restart; fixed and Original hardware settings remain available when the switch is off.
+- Added the effective device and hardware summary to the controls notification and action screen.
+- Added strictly matched Java FileReader support for bounded memory/CPU read views, including selected /proc and CPU state/frequency paths. Native calls, unmatched paths and actual kernel files are unchanged.
+- Clarified catalog and manual Build-property modes so applying one does not silently retain contradictory settings from the other.
+
+Rebuild existing clones from their original source APK to receive these runtime changes. The hardware configurations are independent test values, not verified factory specifications for the selected phone.
+
 ## 1.6.1
 
 - Replaced the library's direct installer handoff with streamed Android PackageInstaller sessions. Installer-service work runs off the main thread, with progress, pending-session recovery, cancel/retry controls and Export available during installation.
