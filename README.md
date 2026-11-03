@@ -23,7 +23,7 @@ The source ZIP includes `BUILDING.md` with build instructions. Check the downloa
 5. Configure **Options**, check **Review**, then select **Build clone**.
 6. Use **Library** to install, open, share or export the saved clone.
 
-Android controls the installer, unknown-source permission and the final installation decision. Device policy, package conflicts, signatures and unsupported APKs can prevent installation. The manager reports unavailable settings or permission-service failures instead of leaving a pending installation request.
+Android controls the installer, unknown-source permission and the final installation decision. Device policy, package conflicts, signatures and unsupported APKs can prevent installation. Installation uses an Android PackageInstaller session. Permission queries, APK streaming and installer service calls run away from the UI thread. The library shows preparation progress, installation status, Continue and Cancel actions, and keeps Export available. Android can still reject or delay a request; an interrupted manager can recover its pending session when reopened.
 
 ### Installation identity and updates
 
@@ -52,6 +52,9 @@ Profiles save settings, not live app sessions. Known fields are type checked; ma
 | Color selection | **Options > Display** and **Notifications** | Open the status bar, navigation bar, toolbar or notification accent color control. Choose a preset, use RGB and opacity sliders or enter `#RRGGBB` / `#AARRGGBB`. **Apply** saves the selection, **Cancel** discards the draft and **Original** restores the source color. |
 | Manager light or dark mode | **Help > App appearance** | Choose **System**, **Light** or **Dark**. This preference is saved for Undercover App Cloner and is separate from a clone's **Force dark mode** option. |
 | Ads and trackers | **Options > Ads and tracking** | Enable the known ad-host and tracker lists, or enter custom domains before building. See the scope below. |
+| Device identity | **Options > Device identity > Device profile** | Browse 500 identities by company and model. Select a fixed handset, pick a random one now, or let a new identity select another model from the chosen company. Configure RAM, CPU cores and processor separately. |
+| Resource strings | **Options > Developer > String resources** | Search resource names and original text, edit a replacement, then apply the draft. JSON and plain strings.xml imports remain available. |
+| Install report | **Help > Install diagnostics** | View, copy or save local install stages and recorded exceptions. A report may also include Android's recorded exit reason or available ANR trace on supported versions. |
 
 Text replacement applies to supported standard Android text views. Editable text, password fields, Compose text, custom canvases and other rendering systems are outside this control. The example shows how the two strings relate; it is not a live inspector of the source app's screen.
 
@@ -64,6 +67,16 @@ Changes to clone options take effect in newly built APKs. Rebuild and install th
 Filtering applies to selected Java URL/connection and socket paths and supported top-level WebView loads inside the modified app. A matching request is blocked rather than routed through a hosted service. This feature does not create a device-wide VPN or install a system-wide DNS filter.
 
 Native networking, automatic redirects, WebView subresources and unsupported clients can use other paths. Cached ads and ads served from an app's own content domains may still appear. Blocking a shared domain can also stop sign-in, images or other app content. These controls reduce matching traffic within the supported paths; they do not guarantee an ad-free app.
+
+## Device profiles
+
+The picker includes **500 handset identities across 13 companies**: Google, Samsung, Xiaomi, OnePlus, Oppo, Vivo, Realme, Motorola, Sony, Asus, Nokia, Huawei and Honor. Model identifiers and device names come from Google's public Google Play supported-device list. A company label is useful for selection; it is not a guarantee that every manufacturer Build field matches factory firmware.
+
+Choose a fixed company and model, use **Pick random now**, or select a new random profile when the clone creates a new identity. A random profile is saved in the clone so ordinary reads stay consistent. A company filter can limit future random choices. Explicit Build-property overrides take precedence over profile defaults.
+
+RAM, CPU core count, processor manufacturer and processor model are separate controls. Choose Original to preserve the real API value, a preset test value, or a validated custom value. RAM accepts 512 to 65536 MiB and core count accepts 1 to 32. These are user-selected overrides; the catalog source does not supply verified RAM, SoC, ABI or CPU specifications for its handsets.
+
+Profiles affect selected Build/SoC reads, selected ActivityManager memory information and rewritten `Runtime.availableProcessors()` calls inside the clone. They do not change physical hardware, the real Android SDK level, `/proc`, native APIs or arbitrary system-property access. Unknown catalog fields preserve the original value unless explicitly overridden.
 
 ## Notification controls
 
@@ -108,7 +121,7 @@ The table below covers all **86 reference items** across 15 groups. Each row des
 | Change Google Services Framework (GSF) ID | Scoped | Replace the Android-ID result of selected GSF provider queries. Google Play services, account identifiers and unrelated Google service data are not modified. |
 | Change Advertising IDs | Scoped | Override selected Google advertising-ID, Amazon advertising settings and Facebook attribution queries. Other advertising SDKs and cached or server-side values can differ. |
 | Hide SIM & Operator Info | Scoped | Mask selected operator, country, MCC/MNC, SIM-state and phone-type getters. This does not suppress all cellular metadata. |
-| Randomize Build Props | Scoped | Generate a supported device profile or import allowlisted Build/OpenGL properties. Arbitrary system properties, kernel values and the device's build.prop file are unchanged. |
+| Randomize Build Props | Scoped | Select from 500 company/model identities or rotate a saved random profile. Configure separate RAM, core-count and SoC overrides for selected Java API paths. Import allowlisted Build/OpenGL properties for explicit overrides. Native APIs, kernel values, the actual SDK level and the device's build.prop file are unchanged. |
 | Hide GPU & Display Info | Scoped | Override selected OpenGL vendor/renderer queries and display metric reads. Native graphics, Vulkan and other display APIs may reveal different information. |
 | New Identity Preset | Available | Generate supported identifiers and a device profile, save the per-clone identity and restart the clone. Location and time-zone randomization are separate options. |
 
@@ -149,7 +162,7 @@ The table below covers all **86 reference items** across 15 groups. Each row des
 | Feature | Coverage | Behavior and limits |
 | --- | --- | --- |
 | Spoof Location | Scoped | Return configured coordinates from selected Location getters. Global providers, geofences, native coordinates and every fused-location path are not replaced. |
-| Spoof GPS Track | Scoped | Interpolate a timed JSON route with bearing, accuracy and jitter. Routes support 2-1024 ordered points and up to seven days; GPX import and a system mock provider are unavailable. |
+| Spoof GPS Track | Scoped | Import route JSON or one continuous GPX track/route with 2-1024 points. Valid timed GPX keeps relative timing; untimed GPX assigns one second between points. Routes support up to seven days, bearing, accuracy and jitter in selected location reads. Multiple segments, partially missing timestamps and a system mock provider are not supported. |
 | IP-Derived Location | Scoped | Opt in to an HTTPS lookup that estimates coordinates from the clone's egress IP. The service sees that request, and the public IP itself does not change. |
 | Hide Mock Location | Scoped | Return false from selected mock-provider/mock-location checks. Provider inconsistencies and other native or SDK detection methods may still be visible. |
 | Fake Date & Time Zone | Scoped | Override selected Java wall-clock factories and time-zone paths. A configured zone also affects Java defaults. Scheduling clocks, OS time and native clocks remain unchanged. |
@@ -160,7 +173,7 @@ The table below covers all **86 reference items** across 15 groups. Each row des
 | Feature | Coverage | Behavior and limits |
 | --- | --- | --- |
 | Audio Muting & Volume Override | Scoped | Mute selected MediaPlayer/AudioTrack calls or set foreground media volume, restoring its previous level after backgrounding. Native engines, SoundPool and unmatched paths may remain audible. |
-| Mute Startup Sounds | Unavailable | No separate startup-only mute interval is provided. Supported-call muting applies beyond the startup period. |
+| Mute Startup Sounds | Scoped | Mute supported MediaPlayer/AudioTrack paths for the first 1-300 seconds of a new clone process, then restore each player's requested volume. Zero disables it. Permanent mute takes precedence; native playback, SoundPool and unsupported paths remain outside this control. |
 | Prevent Audio Focus Theft | Scoped | Handle selected AudioManager focus calls without requesting system focus. This does not control every playback engine or Android focus decision. |
 | Fake Camera / Dummy Audio Recorder | Scoped | Provide paced silent samples for selected AudioRecord calls. Construction still depends on Android permissions and hardware. Camera replacement and black-frame injection are unavailable. |
 
@@ -170,7 +183,7 @@ The table below covers all **86 reference items** across 15 groups. Each row des
 | --- | --- | --- |
 | Hardware Key Remapping | Scoped | Map delivered Volume Up, Volume Down and Assist events to Back, Home or Exit. Android may intercept keys first; screenshot and data-wipe key actions are unavailable. |
 | Double-Back Behavior | Available | Use a second Back press within 1.5 seconds to minimize or exit. Arbitrary scripts and custom task workflows are not included. |
-| Show Navigation Bar / Virtual Buttons | Scoped | Request software navigation bars or immersive hiding. A separate virtual-button overlay is unavailable, and Android controls navigation presentation. |
+| Show Navigation Bar / Virtual Buttons | Scoped | Request software navigation bars or immersive hiding. A separate movable in-window Back/Home/Close control can be enabled in the clone; it stays hidden while locked. Close asks for confirmation. Android still controls system gestures and navigation presentation. |
 | Confirm on Exit | Available | Show confirmation for the configured Back action. Source-defined close buttons and OS process termination are not universally intercepted. |
 
 ### 7. Storage
@@ -178,7 +191,7 @@ The table below covers all **86 reference items** across 15 groups. Each row des
 | Feature | Coverage | Behavior and limits |
 | --- | --- | --- |
 | Install to SD Card | Scoped; Android controlled | Request external installation with preferExternal. Android and device storage support decide placement; arbitrary data migration to an SD card is not performed. |
-| Redirect External Storage | Unavailable | Shared external-directory calls are not redirected into a clone-private tree. Normal Android package-specific storage isolation still applies. |
+| Redirect External Storage | Scoped | Redirect selected Environment shared-directory getters to a checked clone-private storage tree. Hardcoded paths, native calls, SAF documents and reads before runtime initialization are unchanged. This is API-path redirection, not a global filesystem boundary. |
 | Accessible Data Directory | Scoped | Optionally expose approved files, preferences and databases through a read-only Android Files provider. It does not mount private app storage as a writable shared folder. |
 | Disable Photo & Media Access | Scoped | Remove selected storage/media permissions. Existing URI grants, app-private files and explicit user-selected documents remain separate access paths. |
 | Clear Cache on Exit | Scoped | Clean private cache after supported backgrounding, deferring for tools and data work. Manual cache clearing also checks code/external cache roots and reports deletion failures. |
@@ -236,7 +249,7 @@ The table below covers all **86 reference items** across 15 groups. Each row des
 | Feature | Coverage | Behavior and limits |
 | --- | --- | --- |
 | XML Manifest Editor | Available | Edit/import a bounded source-compatible manifest before clone transformations. Invalid edits can break the source app; custom entities/DOCTYPE and unsafe structures are rejected. |
-| App Translator | Scoped | Replace existing named strings through JSON or plain strings.xml, across matching locales. Nested markup, plurals and arrays are rejected; automatic translation is unavailable. |
+| App Translator | Scoped | Search existing resource names and original text, edit replacements in a draft, or import JSON/plain strings.xml overrides across matching locales. Nested markup, plurals and arrays are rejected; automatic translation is unavailable. |
 | Target / Min SDK Modifier | Scoped | Change SDK declarations while preserving required legacy defaults. Runtime clones require API26+. A lower declaration neither supplies missing APIs nor bypasses installation or permission policy. |
 | Component Manager | Scoped | Disable selected declared activities, aliases, services, providers or receivers. Removing an override preserves source behavior; enabling every source-disabled component is not supported. |
 
@@ -257,7 +270,7 @@ The table below covers all **86 reference items** across 15 groups. Each row des
 | Clone Number Badging | Available | Add a clone-number badge to the generated launcher icon. Final masking and adaptive-icon presentation depend on the launcher. |
 | Icon Modifier | Available | Choose a custom image, change hue, invert colors or flip the generated launcher icon, with Original/Clone live previews using the export renderer. Source-driven dynamic icon changes and all launcher behaviors are not rewritten. |
 | Google Maps Support Add-on | Scoped | Replace Maps key metadata with a key from a project you control. Its package/certificate restrictions must authorize the clone; automatic third-party key authorization is unavailable. |
-| Save / Export Clone APKs & Profiles | Available | Export/share signed APKs, library APK ZIPs and JSON profiles. Install uses a temporary APK read grant and Android confirmation. App-data backup is separate; private signing keys are not exported. |
+| Save / Export Clone APKs & Profiles | Available | Export/share signed APKs, library APK ZIPs and JSON profiles. Install streams the APK through a PackageInstaller session with Android confirmation, progress and recovery controls. App-data backup is separate; private signing keys are not exported. |
 
 ## Import and operating limits
 
@@ -275,7 +288,13 @@ Split signatures, package versions, dependencies, checksums, duplicate classes a
 
 Package and signature changes can break sign-in, billing, DRM, integrity checks, provider references and app-specific service restrictions. Native code, reflection, dynamically loaded code, framework-internal calls and alternative SDKs can bypass selected rewrites. Standard-view controls do not imply universal support for Compose, Flutter, games, canvases or video surfaces.
 
-No system WebView replacement, hosted App Cloner tunnel, camera-stream replacement, startup-only mute interval, screenshot/data-wipe key action, device-event launch engine, public app-status API or shared-directory redirection is included. The feature table gives the scope of related controls.
+No system WebView replacement, hosted App Cloner tunnel, camera-stream replacement, screenshot/data-wipe key action, device-event launch engine or public app-status API is included. The feature table gives the scope of related controls.
+
+## Install diagnostics
+
+**Help > Install diagnostics** keeps install stages and bounded error records on the device. You can view, copy or save a report. Reports include the manager version, Android version, phone model and recorded stages/errors; they exclude APK contents, account files and clone settings. On supported Android versions, the report can include the manager's own recorded process-exit reason and an available main-thread ANR trace. Android may not retain a trace for every hang.
+
+Nothing is uploaded automatically. Review a report before sharing it. If Install stalls on a particular phone, keep the manager open, note the action and time, then reopen the app and save this report. Exporting the APK remains a separate installation fallback.
 
 ## Privacy and signing
 
@@ -291,9 +310,9 @@ A clone password protects app entry. It does not encrypt the clone's files or AP
 
 See the [release notes](https://github.com/savaskarofficial/Undercover-App-Cloner/releases) for build results, test totals, artifact checks and device observations. The [changelog](CHANGELOG.md) lists feature changes. Building instructions are included in the source ZIP.
 
-Host checks cover compiled fixture APK transformations, manifest/resource edits, settings validation, selected DEX calls and fields, runtime contracts, identity persistence, notification rules, clocks, text replacement, ad/tracker host rules, file containment, archive encryption, restore recovery and data-operation coordination. Host tests do not execute every Android UI or hardware path.
+Host checks cover compiled fixture APK transformations, manifest/resource edits, settings validation, selected DEX calls and fields, runtime contracts, the shared device catalog, identity persistence, notification rules, clocks, text replacement, ad/tracker host rules, file containment, archive encryption, restore recovery and data-operation coordination. Host tests do not execute every Android UI or hardware path.
 
-**Android 16 and 17 end-to-end compatibility is unverified.** Phone-specific Install crashes require matching device checks. OEM installer policy, biometrics, persistent document grants, keyboard viewports and source-app/API combinations can produce different results.
+**Android 16 and 17 end-to-end compatibility is unverified.** Phone-specific installation hangs require matching device checks and, where available, the local diagnostics report. OEM installer policy, biometrics, persistent document grants, keyboard viewports and source-app/API combinations can produce different results.
 
 When reporting a problem, include the APK identifier and checksum from its release notes, Android version, source app/package, selected settings, action taken and the error or crash log where available. A successful build or signature check does not establish that every source app or option combination will work.
 
