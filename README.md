@@ -58,7 +58,7 @@ Saved profiles are checked when loaded, with a deterministic resolution for conf
 | Color selection | **Options > Display** and **Notifications** | Open the status bar, navigation bar, toolbar or notification accent color control. Choose a preset, use RGB and opacity sliders or enter `#RRGGBB` / `#AARRGGBB`. **Apply** saves the selection, **Cancel** discards the draft and **Original** restores the source color. |
 | Manager light or dark mode | **Help > App appearance** | Choose **System**, **Light** or **Dark**. This preference is saved for Undercover App Cloner and is separate from a clone's **Force dark mode** option. |
 | Ads and trackers | **Options > Ads and tracking** | Enable the known ad-host and tracker lists, or enter custom domains before building. See the scope below. |
-| Device identity | **Options > Device identity > Device profile** | Browse 500 identities by company/model, choose a fixed model or save company-filtered random selection. Hardware mode is separate. |
+| Device identity | **Options > Device identity > Company and model** | Browse 500 identities by company/model, choose a fixed model or save company-filtered random selection. Hardware mode is separate. |
 | RAM and CPU editing | **Options > Device identity > Hardware settings** | Choose Original, Fixed or Random. **Edit RAM and CPU** provides GiB/MiB entry, core count, processor manufacturer/model and presets. |
 | Applied settings | **Inside the clone > Undercover controls > Applied settings** | Refresh, copy or save the effective supported settings, with sensitive identifiers and credentials omitted. |
 | Clone build details | **Library > clone menu > Build details** | Check the builder version and build date. Older or unknown builds need rebuilding for updated runtime controls. |
@@ -81,7 +81,7 @@ Native networking, automatic redirects, WebView subresources and unsupported cli
 
 The picker includes **500 handset identities across 13 companies**: Google, Samsung, Xiaomi, OnePlus, Oppo, Vivo, Realme, Motorola, Sony, Asus, Nokia, Huawei and Honor. Model identifiers and device names come from Google's public Google Play supported-device list. The catalog does not contain verified factory RAM, CPU, SoC or ABI specifications.
 
-Choose a fixed company and model, use **Pick random now**, or select a new random model whenever the clone creates a new identity. A company filter limits future model choices. The saved model stays consistent between rotations. Changing the company or model leaves the separately chosen hardware mode in place.
+Choose a fixed company and model, use **Pick a random model now**, or select a new random model whenever the clone creates a new identity. A company filter limits future model choices. The saved model stays consistent between rotations. Changing the company or model leaves the separately chosen hardware mode in place.
 
 Open **Options > Device identity > Hardware settings > Edit RAM and CPU** to set RAM in GiB or MiB, CPU core count, processor manufacturer and processor model. RAM accepts 0 for Original or 512 to 65536 MiB; decimal GiB input is rounded to the nearest MiB. Core count accepts 0 for Original or 1 to 32. You can load a preset, enter fixed values or reset the fields to Original. Applying fixed values turns random hardware mode off and keeps the selected company and model.
 
