@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.6.3
+
+- Removed development prefixes from generated Board, Product, SKU and ODM SKU values. Existing saved hardware labels update once without rotating identifiers, hardware values or the identity revision. Manual properties remain available in manual mode.
+- Added a separate Hardware settings panel with Original, Fixed and Random modes, direct GiB/MiB RAM entry, CPU core count, processor manufacturer/model and presets. Changing a model no longer changes the hardware mode.
+- Added setting conflict resolution with clear adjustment messages, saved-profile normalization and build-time checks. The most recent supported edit takes priority; dependent options explain the setting or permission they need.
+- Added an in-clone Applied settings screen with refresh, copy and save actions. Reports show effective supported settings and omit sensitive identifiers, precise coordinates and credentials.
+- Added build details to saved clones, including builder version, build time and runtime metadata. Older or unknown builds are marked for rebuilding.
+- Tightened Wi-Fi-only and Require VPN checks to use the active connection. A PiP navigation/key action now requests Android's own transition for eligible clone Activities.
+- Fixed saved-location precedence after a clone update. Newly configured routes, fixed coordinates and fixed time zones take priority over earlier saved random or IP-derived values; enabled random modes retain their saved values.
+
+Rebuild existing clones from the original source APK to receive these changes. Hardware overrides remain simulated values on supported Java paths; native and physical hardware values are outside this scope. Android still controls installation, networking permissions and PiP eligibility.
+
 ## 1.6.2
 
 - Fixed conflicting device identities: the manager's old Pixel-only generator no longer pins Google properties and Mali GPU values over a selected company/model. Catalog identity settings now replace stale manual profile properties.
