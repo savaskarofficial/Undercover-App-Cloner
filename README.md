@@ -43,6 +43,12 @@ Use a different suffix for a separate clone. Reusing an existing clone package w
 
 Profiles save settings, not live app sessions. Known fields are type checked; malformed values, fractional integers, overflow and non-finite coordinates are rejected. Unknown fields are ignored for compatibility.
 
+## Settings that work together
+
+When two supported settings conflict, the manager resolves the edit and shows which setting changed and why. The control you just changed normally takes priority. For example, enabling Allow screenshots turns off Prevent screenshots, and applying fixed RAM/CPU values turns off random hardware rotation. A dependent option can also restore its required setting or permission; selecting a PiP key action enables the Picture-in-picture declaration.
+
+Saved profiles are checked when loaded, with a deterministic resolution for conflicting values. Review shows the remaining setting requirements before a build. Some adjustments preserve the inactive value for later use: disabling a GPS route keeps its route points, and fixed hardware values can remain saved while random mode is active. These checks cover the rules implemented in the manager and engine; source-app compatibility and Android policy still apply.
+
 ## Finding the controls
 
 | Control | Location | How to use it |
@@ -52,7 +58,10 @@ Profiles save settings, not live app sessions. Known fields are type checked; ma
 | Color selection | **Options > Display** and **Notifications** | Open the status bar, navigation bar, toolbar or notification accent color control. Choose a preset, use RGB and opacity sliders or enter `#RRGGBB` / `#AARRGGBB`. **Apply** saves the selection, **Cancel** discards the draft and **Original** restores the source color. |
 | Manager light or dark mode | **Help > App appearance** | Choose **System**, **Light** or **Dark**. This preference is saved for Undercover App Cloner and is separate from a clone's **Force dark mode** option. |
 | Ads and trackers | **Options > Ads and tracking** | Enable the known ad-host and tracker lists, or enter custom domains before building. See the scope below. |
-| Device identity | **Options > Device identity > Device profile** | Browse 500 identities by company and model. Select a fixed handset, pick a random one now, or let a new identity select another model from the chosen company. Enable Randomize RAM and processor to rotate hardware test values too; switch it off for fixed or Original values. |
+| Device identity | **Options > Device identity > Device profile** | Browse 500 identities by company/model, choose a fixed model or save company-filtered random selection. Hardware mode is separate. |
+| RAM and CPU editing | **Options > Device identity > Hardware settings** | Choose Original, Fixed or Random. **Edit RAM and CPU** provides GiB/MiB entry, core count, processor manufacturer/model and presets. |
+| Applied settings | **Inside the clone > Undercover controls > Applied settings** | Refresh, copy or save the effective supported settings, with sensitive identifiers and credentials omitted. |
+| Clone build details | **Library > clone menu > Build details** | Check the builder version and build date. Older or unknown builds need rebuilding for updated runtime controls. |
 | Resource strings | **Options > Developer > String resources** | Search resource names and original text, edit a replacement, then apply the draft. JSON and plain strings.xml imports remain available. |
 | Install report | **Help > Install diagnostics** | View, copy or save local install stages and recorded exceptions. A report may also include Android's recorded exit reason or available ANR trace on supported versions. |
 
@@ -70,15 +79,19 @@ Native networking, automatic redirects, WebView subresources and unsupported cli
 
 ## Device profiles
 
-The picker includes **500 handset identities across 13 companies**: Google, Samsung, Xiaomi, OnePlus, Oppo, Vivo, Realme, Motorola, Sony, Asus, Nokia, Huawei and Honor. Model identifiers and device names come from Google's public Google Play supported-device list. A company label is useful for selection; it is not a guarantee that every manufacturer Build field matches factory firmware.
+The picker includes **500 handset identities across 13 companies**: Google, Samsung, Xiaomi, OnePlus, Oppo, Vivo, Realme, Motorola, Sony, Asus, Nokia, Huawei and Honor. Model identifiers and device names come from Google's public Google Play supported-device list. The catalog does not contain verified factory RAM, CPU, SoC or ABI specifications.
 
-Choose a fixed company and model, use **Pick random now**, or select a new random profile when the clone creates a new identity. A random profile is saved in the clone so ordinary reads stay consistent. A company filter limits future random model choices. Selecting a catalog identity clears conflicting manual identity properties and stale GPU pins. Applying nonblank manual Build properties switches back to manual device identity and turns off hardware randomization.
+Choose a fixed company and model, use **Pick random now**, or select a new random model whenever the clone creates a new identity. A company filter limits future model choices. The saved model stays consistent between rotations. Changing the company or model leaves the separately chosen hardware mode in place.
 
-**Randomize RAM and processor** selects one of 14 independent hardware test configurations, saves it with the clone identity and chooses another configuration on New identity. The configuration includes RAM, core count, processor, GPU labels, CPU-frequency test ceilings and clearly synthetic Product/SKU labels. These are simulated test values, not verified factory specifications for the selected handset. Random model mode enables the switch initially; it can be turned off.
+Open **Options > Device identity > Hardware settings > Edit RAM and CPU** to set RAM in GiB or MiB, CPU core count, processor manufacturer and processor model. RAM accepts 0 for Original or 512 to 65536 MiB; decimal GiB input is rounded to the nearest MiB. Core count accepts 0 for Original or 1 to 32. You can load a preset, enter fixed values or reset the fields to Original. Applying fixed values turns random hardware mode off and keeps the selected company and model.
 
-With this switch off, choose Original to preserve the real API value, a fixed preset, or a validated custom value. Fixed values remain fixed when New identity runs. RAM accepts 512 to 65536 MiB and core count accepts 1 to 32. The 500-device source supplies names and model/device identifiers, without factory RAM, SoC or ABI data.
+**Original** uses source hardware values. **Fixed** keeps the configured values when New identity runs. **Random** selects one of 14 independent simulated configurations, saves it with the clone identity and chooses another configuration on New identity. The configurations include RAM, cores, processor, GPU labels and CPU-frequency ceilings. They are independent overrides, not factory specifications for the selected handset.
 
-Profiles affect selected Build/SoC reads, ActivityManager memory information and rewritten `Runtime.availableProcessors()` calls inside the clone. Strictly matched Java FileReader construction also supports bounded read views for `/proc/meminfo`, `/proc/cpuinfo`, `/proc/stat` and allowlisted CPU state/frequency paths under `/sys/devices/system/cpu`. These views keep memory/core values aligned with the selected test configuration. They do not write kernel files or change physical hardware, the real Android SDK level, native APIs or arbitrary system properties. Unmatched readers, file descriptors and other paths keep their source behavior.
+Automatically generated Board, Product, SKU and ODM SKU values use concise device/configuration identifiers. Product follows the selected device code, so it can remain the same for a fixed model or models that share a code. Existing generated labels from older runtime builds are updated once without rotating identifiers, RAM/CPU values or the identity revision. Explicit manual properties are preserved in manual mode.
+
+Selecting a catalog identity clears conflicting manual identity properties and stale GPU pins. Applying nonblank manual Build properties switches back to manual device identity and turns off random hardware mode. The manager reports these adjustments.
+
+Profiles affect selected Build/SoC reads, ActivityManager memory information and rewritten `Runtime.availableProcessors()` calls inside the clone. Strictly matched Java FileReader construction supports bounded read views for `/proc/meminfo`, `/proc/cpuinfo`, `/proc/stat` and allowlisted CPU state/frequency paths under `/sys/devices/system/cpu`. These views keep supported reads aligned with the chosen values. They do not write kernel files or change physical hardware, the real Android SDK level, native APIs or arbitrary system properties. Unmatched readers, file descriptors and other paths retain their source behavior.
 
 ## Notification controls
 
@@ -89,6 +102,16 @@ Enable **Controls notification** before building, install the generated APK and 
 - **Startup data** embedded in the APK can be applied again after a reset. Clearing Android storage does not remove a preset contained in the installed APK.
 
 Identity settings affect selected app-visible calls and fields. They do not guarantee that a server forgets an account or that every fingerprinting method returns the new values.
+
+After rebuilding a clone, its configured route, fixed coordinates and fixed time zone take priority over earlier saved random or IP-derived values. Enabled random modes continue using their saved values until the next rotation.
+
+## Check the installed clone
+
+Open the clone's **Undercover controls** notification, then select **Applied settings**. The screen shows the saved identity revision, effective device and hardware values, location/time mode, network requests and selected controls. Refresh, Copy and Save report are available. A configured app lock protects access.
+
+The report omits Android ID, phone/SIM identifiers, precise coordinates, proxy credentials, passwords and signing keys. It reports values used by supported Java hooks; it does not prove that every source-app read uses those hooks. Native code and unmatched APIs can still report the phone's source values.
+
+In **Library**, open a clone's menu and choose **Build details** to see the manager version that built it, its build date and whether the runtime was included. Older or unknown builds are labelled for rebuilding. Reinstalling a saved APK keeps that APK's original code and controls. Rebuild from the original source APK to receive new runtime behavior.
 
 ## Clone data tools
 
@@ -155,7 +178,7 @@ The table below covers all **86 reference items** across 15 groups. Each row des
 | Dark Mode & Invert Colors | Scoped | Request clone-scoped night mode or an inverted content layer. The manager has a separate saved System/Light/Dark preference in Help. These controls do not change the phone's theme or guarantee recoloring of custom surfaces. |
 | Modify Views | Scoped | Use the visible Find text and Replace with fields for literal, case-sensitive replacement in supported standard text views; editable and password fields are excluded. Hide exact matching text, resize standard text or apply opacity. An arbitrary view inspector and universal Compose/game editing are not included. |
 | Window Sizing & Scaling | Scoped | Adjust supported density, language, font scale, text size and padding. Existing custom surfaces may not follow configuration changes; arbitrary window resizing is unavailable. |
-| Multi-Window & Picture-in-Picture (PiP) | Scoped; Android controlled | Edit resizeable, PiP and task-reparenting declarations. Android and the source app must supply the actual window mode, transition behavior and device support. |
+| Multi-Window & Picture-in-Picture (PiP) | Scoped; Android controlled | Edit resizeable, PiP and task-reparenting declarations. A configured PiP navigation/key action requests Android's own 16:9 PiP transition for the active unlocked clone Activity. Android support, per-app policy and source layout determine the result. No generic floating/freeform host is provided. |
 | Rotation Lock | Available | Request system, portrait, landscape, reverse or full-sensor orientation. Source behavior and Android large-screen policies may override the request. |
 | Screen Behavior | Available | Request keep-screen-on, immersive bars, visible navigation bars and supported cutout behavior. Android's gesture and window policies remain authoritative. |
 
@@ -183,7 +206,7 @@ The table below covers all **86 reference items** across 15 groups. Each row des
 
 | Feature | Coverage | Behavior and limits |
 | --- | --- | --- |
-| Hardware Key Remapping | Scoped | Map delivered Volume Up, Volume Down and Assist events to Back, Home or Exit. Android may intercept keys first; screenshot and data-wipe key actions are unavailable. |
+| Hardware Key Remapping | Scoped | Map delivered Volume Up, Volume Down and Assist events to Back, Home, Minimize, PiP or Exit. Android can intercept keys first. PiP needs the enabled declaration and platform support; screenshot and data-wipe key actions are unavailable. |
 | Double-Back Behavior | Available | Use a second Back press within 1.5 seconds to minimize or exit. Arbitrary scripts and custom task workflows are not included. |
 | Show Navigation Bar / Virtual Buttons | Scoped | Request software navigation bars or immersive hiding. A separate movable in-window Back/Home/Close control can be enabled in the clone; it stays hidden while locked. Close asks for confirmation. Android still controls system gestures and navigation presentation. |
 | Confirm on Exit | Available | Show confirmation for the configured Back action. Source-defined close buttons and OS process termination are not universally intercepted. |
@@ -216,7 +239,7 @@ The table below covers all **86 reference items** across 15 groups. Each row des
 | --- | --- | --- |
 | SOCKS5 / HTTP Proxy Routing | Scoped | Configure one HTTP or SOCKS proxy, optional credentials and selected Java connection policies. Native networking, QUIC, DNS and unsupported clients can bypass these paths; no VPN is included. |
 | Block Network Access | Available | Remove INTERNET permission to deny ordinary network access by that clone UID. The phone's connections and work delegated to another app are unaffected. |
-| Disable Mobile Data / Background Networking | Scoped | Require Wi-Fi, foreground state or an existing VPN for selected Java requests. Open connections, native stacks and WebView internals are not a universal UID firewall. |
+| Disable Mobile Data / Background Networking | Scoped | Require active Wi-Fi, foreground state or an existing VPN for selected Java requests. Wi-Fi-only checks use Android's active connection, including a confirmed VPN underlay, and block when that route cannot be established. Open connections, native stacks and WebView internals remain outside a universal UID firewall. |
 | WebRTC IP Leak Guard | Scoped | Disable JavaScript in supported WebViews to prevent their scripted WebRTC path. This can break pages and does not cover native WebRTC or all public-IP leaks. |
 | App Cloner Tunnel Manager | Unavailable | App Cloner account integration, tunnel provisioning and a compatible hosted tunnel service are not included. |
 
