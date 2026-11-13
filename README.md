@@ -335,9 +335,9 @@ A clone password protects app entry. It does not encrypt the clone's files or AP
 
 See the [release notes](https://github.com/savaskarofficial/Undercover-App-Cloner/releases) for build results, test totals, artifact checks and device observations. The [changelog](CHANGELOG.md) lists feature changes. Building instructions are included in the source ZIP.
 
-Host checks cover compiled fixture APK transformations, manifest/resource edits, settings validation, selected DEX calls and fields, runtime contracts, the shared device catalog, identity persistence, notification rules, clocks, text replacement, ad/tracker host rules, file containment, archive encryption, restore recovery and data-operation coordination. Host tests do not execute every Android UI or hardware path.
+The app requires Android 8.0 or newer. Automated checks cover APK building and settings, but results can vary by app and phone.
 
-**Android 16 and 17 end-to-end compatibility is unverified.** Phone-specific installation hangs require matching device checks and, where available, the local diagnostics report. OEM installer policy, biometrics, persistent document grants, keyboard viewports and source-app/API combinations can produce different results.
+Android 16 and 17 have not been tested end to end. If something fails, report it with a screenshot, your device model and Android version.
 
 When reporting a problem, include the APK identifier and checksum from its release notes, Android version, source app/package, selected settings, action taken and the error or crash log where available. A successful build or signature check does not establish that every source app or option combination will work.
 
